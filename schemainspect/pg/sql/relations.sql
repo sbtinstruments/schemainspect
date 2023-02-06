@@ -60,7 +60,6 @@ r as (
         left outer join extension_oids e
           on c.oid = e.objid
     where c.relkind in ('r', 'v', 'm', 'c', 'p')
-    -- SKIP_INTERNAL and e.objid is null
     -- SKIP_INTERNAL and n.nspname not in ('pg_catalog', 'information_schema', 'pg_toast')
     -- SKIP_INTERNAL and n.nspname not like 'pg_temp_%' and n.nspname not like 'pg_toast_temp_%'
 )
