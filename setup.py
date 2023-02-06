@@ -35,7 +35,6 @@ setup(
     license="Unlicense",
     keywords="postgres schema",
     url="https://github.com/djrobstep/schemainspect",
-    packages=find_packages(),
     long_description=_read("README.md"),
     packages=["schemainspect"],
     include_package_data=True,
