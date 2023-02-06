@@ -64,7 +64,7 @@ WHERE
     and c.relkind in ('r', 'm', 'p') AND i.relkind in ('i', 'I')
       -- SKIP_INTERNAL and nspname not in ('pg_catalog', 'information_schema', 'pg_toast')
       -- SKIP_INTERNAL and nspname not like 'pg_temp_%' and nspname not like 'pg_toast_temp_%'
-      -- SKIP_INTERNAL and e.objid is null and er.objid is null
+      -- SKIP_INTERNAL and e.objid is null
 )
 select * ,
 index_columns[1\:key_column_count] as key_columns,
