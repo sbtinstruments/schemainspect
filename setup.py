@@ -37,6 +37,5 @@ setup(
     url="https://github.com/djrobstep/schemainspect",
     long_description=_read("README.md"),
     packages=["schemainspect"],
-    include_package_data=True,
     package_data={"schemainspect": ["pg/sql/*.sql"],},
 )
