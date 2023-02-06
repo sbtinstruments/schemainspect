@@ -145,5 +145,5 @@ from
       on cr.objid = confrelid
     where contype in ('c', 'f', 'p', 'u', 'x')
   -- SKIP_INTERNAL and nspname not in ('pg_internal', 'pg_catalog', 'information_schema', 'pg_toast', 'pg_temp_1', 'pg_toast_temp_1')
-  -- SKIP_INTERNAL and e.objid is null and er.objid is null and cr.objid is null
+  -- SKIP_INTERNAL and e.objid is null and cr.objid is null
 order by 1, 3, 2;
