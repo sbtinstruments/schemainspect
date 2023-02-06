@@ -22,7 +22,6 @@ FROM pg_catalog.pg_type t
        on t.oid = e.objid
 WHERE
   t.typcategory = 'E'
-  and e.objid is null
   -- SKIP_INTERNAL and n.nspname not in ('pg_internal', 'pg_catalog', 'information_schema', 'pg_toast')
   -- SKIP_INTERNAL and n.nspname not like 'pg_temp_%' and n.nspname not like 'pg_toast_temp_%'
 ORDER BY 1, 2;
