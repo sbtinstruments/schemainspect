@@ -36,6 +36,6 @@ setup(
     keywords="postgres schema",
     url="https://github.com/djrobstep/schemainspect",
     long_description=_read("README.md"),
-    packages=["schemainspect"],
+    packages=find_packages(exclude=['tests', 'tests.*']),
     package_data={"schemainspect": ["pg/sql/*.sql"],},
 )
