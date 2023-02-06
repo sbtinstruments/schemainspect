@@ -9,6 +9,8 @@ description = "Schema inspection for PostgreSQL (and possibly others)"
 repository = "https://github.com/djrobstep/schemainspect"
 homepage = "https://github.com/djrobstep/schemainspect"
 
+include = ["schemainspect/pg/sql/*.sql"]
+
 [tool.poetry.dependencies]
 python = ">=3.7,<4"
 sqlalchemy = "*"
