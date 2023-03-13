@@ -239,6 +239,7 @@ class InspectedFunction(InspectedSelectable):
         self,
         name,
         schema,
+        owner,
         columns,
         inputs,
         definition,
@@ -253,6 +254,7 @@ class InspectedFunction(InspectedSelectable):
         returntype,
         kind,
     ):
+        self.owner = owner
         self.identity_arguments = identity_arguments
         self.result_string = result_string
         self.language = language
@@ -306,6 +308,10 @@ class InspectedFunction(InspectedSelectable):
     def drop_statement(self):
         return "drop {} if exists {};".format(self.thing, self.signature)
 
+    @property
+    def alter_ownership_statement(self):        
+        return "alter function {} owner to {}".format(self.quoted_full_name, quoted_identifier(self.owner)))
+
     def __eq__(self, other):
         return (
             self.signature == other.signature
@@ -316,6 +322,7 @@ class InspectedFunction(InspectedSelectable):
             and self.strictness == other.strictness
             and self.security_type == other.security_type
             and self.kind == other.kind
+            and self.owner == other.owner
         )
 
 
@@ -676,7 +683,7 @@ class InspectedSchema(Inspected):
 # This doesn't have a schema. Should we still derive from Inspected? 
 class InspectedRole(Inspected):
     def __init__(self, rolname: str, rolsuper: bool, rolinherit: bool, rolcanlogin: bool):
-        self.name = rolname 
+        self.name = rolname
         self.super = rolsuper
         self.inherit = rolinherit
         self.can_login = rolcanlogin
@@ -1222,10 +1229,10 @@ class PostgreSQL(DBInspector):
     def load_roles(self):
         q = self.execute(self.ROLES_QUERY)
         roles = [InspectedRole(
-            name=each.rolname 
-            super=each.rolsuper
-            inherit=each.rolinherit
-            can_login=each.rolcanlogin
+            rolname=each.rolname,
+            rolsuper=each.rolsuper,
+            rolinherit=each.rolinherit,
+            rolcanlogin=each.rolcanlogin
         ) for each in q]
         self.roles = od((role.name, role) for role in roles)
 
@@ -1657,6 +1664,7 @@ class PostgreSQL(DBInspector):
             s = InspectedFunction(
                 schema=f.schema,
                 name=f.name,
+                owner=f.owner
                 columns=od((c.name, c) for c in columns),
                 inputs=plist,
                 identity_arguments=f.identity_arguments,
