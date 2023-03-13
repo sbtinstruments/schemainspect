@@ -254,7 +254,6 @@ class InspectedFunction(InspectedSelectable):
         returntype,
         kind,
     ):
-        self.owner = owner
         self.identity_arguments = identity_arguments
         self.result_string = result_string
         self.language = language
@@ -268,6 +267,7 @@ class InspectedFunction(InspectedSelectable):
         super(InspectedFunction, self).__init__(
             name=name,
             schema=schema,
+            owner=owner,
             columns=columns,
             inputs=inputs,
             definition=definition,
@@ -310,7 +310,7 @@ class InspectedFunction(InspectedSelectable):
 
     @property
     def alter_ownership_statement(self):        
-        return "alter function {} owner to {}".format(self.quoted_full_name, quoted_identifier(self.owner)))
+        return "alter function {} owner to {}".format(self.quoted_full_name, self.owner)
 
     def __eq__(self, other):
         return (
@@ -1497,6 +1497,7 @@ class PostgreSQL(DBInspector):
             s = InspectedSelectable(
                 name=f.name,
                 schema=f.schema,
+                owner=f.owner,
                 columns=od((c.name, c) for c in columns),
                 relationtype=f.relationtype,
                 definition=f.definition,
@@ -1664,7 +1665,7 @@ class PostgreSQL(DBInspector):
             s = InspectedFunction(
                 schema=f.schema,
                 name=f.name,
-                owner=f.owner
+                owner=f.owner,
                 columns=od((c.name, c) for c in columns),
                 inputs=plist,
                 identity_arguments=f.identity_arguments,

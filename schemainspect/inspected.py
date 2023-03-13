@@ -280,6 +280,7 @@ class InspectedSelectable(Inspected):
         self,
         name,
         schema,
+        owner,
         columns,
         inputs=None,
         definition=None,
@@ -295,6 +296,7 @@ class InspectedSelectable(Inspected):
     ):
         self.name = name
         self.schema = schema
+        self.owner = owner
         self.inputs = inputs or []
         self.columns = columns
         self.definition = definition
@@ -318,6 +320,7 @@ class InspectedSelectable(Inspected):
             self.relationtype == other.relationtype,
             self.name == other.name,
             self.schema == other.schema,
+            self.owner == other.owner,
             dict(self.columns) == dict(other.columns),
             self.inputs == other.inputs,
             self.definition == other.definition,

@@ -144,7 +144,6 @@ routines as (
       -- 11_AND_LATER and p.kind != 'a'
       -- SKIP_INTERNAL and schema not in ('pg_internal', 'pg_catalog', 'information_schema', 'pg_toast')
       -- SKIP_INTERNAL and schema not like 'pg_temp_%' and schema not like 'pg_toast_temp_%'
-      -- SKIP_INTERNAL and e.objid is null
       -- SKIP_INTERNAL and p.external_language not in ('C', 'INTERNAL')
     ),
 unnested as (
