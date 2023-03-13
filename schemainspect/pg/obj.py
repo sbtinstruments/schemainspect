@@ -34,6 +34,7 @@ TRIGGERS_QUERY = resource_text("sql/triggers.sql")
 COLLATIONS_QUERY = resource_text("sql/collations.sql")
 COLLATIONS_QUERY_9 = resource_text("sql/collations9.sql")
 RLSPOLICIES_QUERY = resource_text("sql/rlspolicies.sql")
+ROLES_QUERY = resource_text("sql/roles.sql")
 
 
 class InspectedSelectable(BaseInspectedSelectable):
@@ -672,6 +673,53 @@ class InspectedSchema(Inspected):
     def __eq__(self, other):
         return self.schema == other.schema
 
+# This doesn't have a schema. Should we still derive from Inspected? 
+class InspectedRole(Inspected):
+    def __init__(self, rolname: str, rolsuper: bool, rolinherit: bool, rolcanlogin: bool):
+        self.name = rolname 
+        self.super = rolsuper
+        self.inherit = rolinherit
+        self.can_login = rolcanlogin
+        # Using None means this will be thrown away if comparing (==) to a specific schema,
+        # but if comparing to an exclude-schema (!=), will be used.
+        self.schema = None
+
+    @property
+    def create_statement(self):
+        return "create role {} {} {} {};".format(self.quoted_name, self.superuser_string, self.inherit_string, self.can_login_string)
+
+    @property
+    def drop_statement(self):
+        return "drop role {};".format(self.quoted_name)
+
+    @property
+    def superuser_string(self):
+        return "SUPERUSER" if self.super else "NOSUPERUSER"
+
+    @property
+    def inherit_string(self):
+        return "INHERIT" if self.inherit else "NOINHERIT"
+
+    @property
+    def can_login_string(self):
+        return "LOGIN" if self.can_login else "NOLOGIN"
+
+    @property
+    def quoted_full_name(self):
+        return self.quoted_name
+
+    @property
+    def quoted_name(self):
+        return quoted_identifier(self.name)
+
+    def __eq__(self, other):
+        return (
+            self.name == other.name
+            and self.super == other.super
+            and self.inherit == other.inherit
+            and self.can_login == other.can_login
+        )
+
 
 class InspectedType(Inspected):
     def __init__(self, name, schema, columns):
@@ -1073,7 +1121,7 @@ class InspectedRowPolicy(Inspected, TableRelated):
         return all(equalities)
 
 
-PROPS = "schemas relations tables views functions selectables sequences constraints indexes enums extensions privileges collations triggers rlspolicies"
+PROPS = "schemas relations tables views functions selectables sequences constraints indexes enums extensions privileges collations triggers rlspolicies roles"
 
 
 class PostgreSQL(DBInspector):
@@ -1134,6 +1182,7 @@ class PostgreSQL(DBInspector):
         self.SCHEMAS_QUERY = processed(SCHEMAS_QUERY)
         self.PRIVILEGES_QUERY = processed(PRIVILEGES_QUERY)
         self.TRIGGERS_QUERY = processed(TRIGGERS_QUERY)
+        self.ROLES_QUERY = processed(ROLES_QUERY)
 
         super(PostgreSQL, self).__init__(c, include_internal)
 
@@ -1160,6 +1209,7 @@ class PostgreSQL(DBInspector):
         self.load_rlspolicies()
         self.load_types()
         self.load_domains()
+        self.load_roles()
 
         self.load_deps()
         self.load_deps_all()
@@ -1168,6 +1218,16 @@ class PostgreSQL(DBInspector):
         q = self.execute(self.SCHEMAS_QUERY)
         schemas = [InspectedSchema(schema=each.schema) for each in q]
         self.schemas = od((schema.schema, schema) for schema in schemas)
+
+    def load_roles(self):
+        q = self.execute(self.ROLES_QUERY)
+        roles = [InspectedRole(
+            name=each.rolname 
+            super=each.rolsuper
+            inherit=each.rolinherit
+            can_login=each.rolcanlogin
+        ) for each in q]
+        self.roles = od((role.name, role) for role in roles)
 
     def load_rlspolicies(self):
         if self.pg_version <= 9:
@@ -1756,6 +1816,7 @@ class PostgreSQL(DBInspector):
         return (
             type(self) == type(other)
             and self.schemas == other.schemas
+            and self.roles == other.roles
             and self.relations == other.relations
             and self.sequences == other.sequences
             and self.enums == other.enums
