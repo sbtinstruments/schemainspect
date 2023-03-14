@@ -67,7 +67,7 @@ select
     r.relationtype,
     r.schema,
     r.name,
-    r.owner,
+    roles.rolname as owner,
     r.definition as definition,
     a.attnum as position_number,
     a.attname as attname,
@@ -102,6 +102,8 @@ FROM
         and a.attnum = ad.adnum
     left join enums e
       on a.atttypid = e.enum_oid
+    left join pg_roles roles
+      on r.owner = roles.oid
 where a.attisdropped is not true
 -- SKIP_INTERNAL and r.schema not in ('pg_catalog', 'information_schema', 'pg_toast')
 -- SKIP_INTERNAL and r.schema not like 'pg_temp_%' and r.schema not like 'pg_toast_temp_%'

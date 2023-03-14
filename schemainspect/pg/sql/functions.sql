@@ -184,7 +184,7 @@ unnested as (
         SELECT
             p.schema as schema,
             p.name as name,
-            p.proowner as owner,
+            roles.rolname as owner,
             case when p.data_type = 'USER-DEFINED' then
               '"' || p.type_udt_schema || '"."' || p.type_udt_name || '"'
             else
@@ -210,6 +210,8 @@ unnested as (
             pg_catalog.obj_description(p.oid) as comment
         FROM
           unnested p
+          left join pg_roles roles
+            on p.proowner = roles.oid
     )
 select
 *
