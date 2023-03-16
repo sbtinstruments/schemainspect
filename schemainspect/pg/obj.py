@@ -326,6 +326,7 @@ class InspectedFunction(InspectedSelectable):
             and self.security_type == other.security_type
             and self.kind == other.kind
             and self.owner == other.owner
+            and self.comment == other.comment
         )
 
 
