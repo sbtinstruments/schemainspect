@@ -696,12 +696,23 @@ class InspectedRole(Inspected):
         self.schema = None
 
     @property
+    def role_description(self):
+        return "{} {} {} {}".format(self.quoted_name, self.superuser_string, self.inherit_string, self.can_login_string)"
+
+    @property
     def create_statement(self):
-        return "create role {} {} {} {};".format(self.quoted_name, self.superuser_string, self.inherit_string, self.can_login_string)
+        return "create role {};".format(self.role_description)
 
     @property
     def drop_statement(self):
         return "drop role {};".format(self.quoted_name)
+
+    @property
+    def alter_statement(self):
+        return "alter role {};".format(self.role_description)
+    
+    def alter_statements(self, old):
+        return [self.alter_statement]
 
     @property
     def superuser_string(self):

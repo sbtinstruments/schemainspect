@@ -10,6 +10,11 @@ where grantee != (
     from pg_tables
     where schemaname = table_schema
     and tablename = table_name
+    union all
+    select viewowner
+    from pg_views
+    where schemaname = table_schema
+    and viewname = table_name
 )
 -- SKIP_INTERNAL and table_schema not in ('pg_internal', 'pg_catalog', 'information_schema', 'pg_toast')
 -- SKIP_INTERNAL and table_schema not like 'pg_temp_%' and table_schema not like 'pg_toast_temp_%'
