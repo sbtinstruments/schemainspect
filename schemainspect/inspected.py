@@ -328,5 +328,6 @@ class InspectedSelectable(Inspected):
             self.partition_def == other.partition_def,
             self.rowsecurity == other.rowsecurity,
             self.persistence == other.persistence,
+            self.comment == other.comment,
         )
         return all(equalities)

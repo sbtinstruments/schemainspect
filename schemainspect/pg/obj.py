@@ -147,6 +147,9 @@ class InspectedSelectable(BaseInspectedSelectable):
 
         return alter
 
+    def set_comment_on_table_statement(self, comment):
+        return "comment on table {} is {};".format(self.quoted_full_name, comment)
+
     @property
     def is_partitioned(self):
         return self.relationtype == "p"
