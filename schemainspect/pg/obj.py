@@ -661,8 +661,9 @@ class InspectedEnum(Inspected):
 
 
 class InspectedSchema(Inspected):
-    def __init__(self, schema):
+    def __init__(self, schema, owner):
         self.schema = schema
+        self.owner = owner
         self.name = None
 
     @property
@@ -682,7 +683,7 @@ class InspectedSchema(Inspected):
         return quoted_identifier(self.schema)
 
     def __eq__(self, other):
-        return self.schema == other.schema
+        return self.schema == other.schema and self.owner == other.owner
 
 # This doesn't have a schema. Should we still derive from Inspected? 
 class InspectedRole(Inspected):
@@ -697,7 +698,7 @@ class InspectedRole(Inspected):
 
     @property
     def role_description(self):
-        return "{} {} {} {}".format(self.quoted_name, self.superuser_string, self.inherit_string, self.can_login_string)"
+        return "{} {} {} {}".format(self.quoted_name, self.superuser_string, self.inherit_string, self.can_login_string)
 
     @property
     def create_statement(self):
@@ -1238,7 +1239,7 @@ class PostgreSQL(DBInspector):
 
     def load_schemas(self):
         q = self.execute(self.SCHEMAS_QUERY)
-        schemas = [InspectedSchema(schema=each.schema) for each in q]
+        schemas = [InspectedSchema(schema=each.schema, owner=each.owner) for each in q]
         self.schemas = od((schema.schema, schema) for schema in schemas)
 
     def load_roles(self):
