@@ -687,11 +687,12 @@ class InspectedSchema(Inspected):
 
 # This doesn't have a schema. Should we still derive from Inspected? 
 class InspectedRole(Inspected):
-    def __init__(self, rolname: str, rolsuper: bool, rolinherit: bool, rolcanlogin: bool):
+    def __init__(self, rolname: str, rolsuper: bool, rolinherit: bool, rolcanlogin: bool, memberships: set):
         self.name = rolname
         self.super = rolsuper
         self.inherit = rolinherit
         self.can_login = rolcanlogin
+        self.memberships = memberships
         # Using None means this will be thrown away if comparing (==) to a specific schema,
         # but if comparing to an exclude-schema (!=), will be used.
         self.schema = None
@@ -741,6 +742,7 @@ class InspectedRole(Inspected):
             and self.super == other.super
             and self.inherit == other.inherit
             and self.can_login == other.can_login
+            and self.memberships == other.memberships
         )
 
 
@@ -1249,6 +1251,7 @@ class PostgreSQL(DBInspector):
             rolsuper=each.rolsuper,
             rolinherit=each.rolinherit,
             rolcanlogin=each.rolcanlogin
+            memberships=(set(each.memberships) if each.memberships is not None else set())
         ) for each in q]
         self.roles = od((role.name, role) for role in roles)
 
