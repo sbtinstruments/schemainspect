@@ -34,11 +34,13 @@ SELECT
     join pg_attribute on (attrelid = pg_class.oid)
     join pg_type a on (atttypid = a.oid)
     where (pg_class.reltype = t.oid)
-  ))) as columns
+  ))) as columns,
+  array_agg(priv) as privs
 FROM
   pg_catalog.pg_type t
   LEFT JOIN pg_catalog.pg_namespace n
     ON n.oid = t.typnamespace
+  LEFT JOIN LATERAL (SELECT pg_catalog.aclexplode(t.typacl)) AS privs(priv) ON true
 WHERE (
   t.typrelid = 0
   OR (
@@ -55,7 +57,15 @@ AND NOT EXISTS (
 )
 AND n.nspname <> 'pg_catalog'
 AND n.nspname <> 'information_schema'
-AND pg_catalog.pg_type_is_visible ( t.oid )
-and t.typcategory = 'C'
-and t.oid not in (select * from extension_oids)
+AND n.nspname <> 'extensions'
+--AND pg_catalog.pg_type_is_visible ( t.oid )
+--and t.typcategory = 'C'
+--and t.oid not in (select * from extension_oids)
+GROUP BY
+    t.oid,
+    size,
+    n.nspname,
+    name,
+    internal_name,
+    description
 ORDER BY 1, 2;

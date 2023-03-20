@@ -751,10 +751,11 @@ class InspectedRole(Inspected):
 
 
 class InspectedType(Inspected):
-    def __init__(self, name, schema, columns):
+    def __init__(self, name, schema, columns, privs):
         self.name = name
         self.schema = schema
         self.columns = columns
+        self.privs = privs
 
     @property
     def drop_statement(self):
@@ -779,6 +780,7 @@ class InspectedType(Inspected):
             self.schema == other.schema
             and self.name == other.name
             and self.columns == other.columns
+            and self.privs == other.privs
         )
 
 
@@ -1732,7 +1734,7 @@ class PostgreSQL(DBInspector):
             return defn["attribute"], defn["type"]
 
         types = [
-            InspectedType(i.name, i.schema, dict(col(_) for _ in i.columns)) for i in q
+            InspectedType(i.name, i.schema, dict(col(_) for _ in i.columns), set(i.privs)) for i in q
         ]  # type: list[InspectedType]
         self.types = od((t.signature, t) for t in types)
 
