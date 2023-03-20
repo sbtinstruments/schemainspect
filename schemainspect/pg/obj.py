@@ -1152,7 +1152,7 @@ class InspectedRowPolicy(Inspected, TableRelated):
         return all(equalities)
 
 
-PROPS = "schemas relations tables views functions selectables sequences constraints indexes enums extensions privileges collations triggers rlspolicies roles"
+PROPS = "schemas relations tables views functions selectables sequences constraints indexes enums extensions privileges collations triggers rlspolicies roles types"
 
 
 class PostgreSQL(DBInspector):
@@ -1734,7 +1734,7 @@ class PostgreSQL(DBInspector):
             return defn["attribute"], defn["type"]
 
         types = [
-            InspectedType(i.name, i.schema, dict(col(_) for _ in i.columns), set(i.privs)) for i in q
+            InspectedType(i.name, i.schema, dict(col(_) for _ in i.columns), i.privs) for i in q
         ]  # type: list[InspectedType]
         self.types = od((t.signature, t) for t in types)
 
