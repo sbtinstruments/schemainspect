@@ -7,7 +7,6 @@ with extension_oids as (
       d.refclassid = 'pg_extension'::regclass and
       d.classid = 'pg_type'::regclass
 )
-
 SELECT
   n.nspname AS schema,
   pg_catalog.format_type (t.oid, NULL) AS name,
@@ -35,12 +34,12 @@ SELECT
     join pg_type a on (atttypid = a.oid)
     where (pg_class.reltype = t.oid)
   ))) as columns,
-  array_agg(priv) as privs
+  array_agg(priv ORDER BY priv) as privs
 FROM
   pg_catalog.pg_type t
   LEFT JOIN pg_catalog.pg_namespace n
     ON n.oid = t.typnamespace
-  LEFT JOIN LATERAL (SELECT pg_catalog.aclexplode(t.typacl)) AS privs(priv) ON true
+  LEFT JOIN LATERAL (SELECT pg_get_userbyid(grantee) FROM pg_catalog.aclexplode(t.typacl)) AS privs(priv) ON true
 WHERE (
   t.typrelid = 0
   OR (

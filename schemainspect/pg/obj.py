@@ -1733,6 +1733,7 @@ class PostgreSQL(DBInspector):
         def col(defn):
             return defn["attribute"], defn["type"]
 
+        # TODO: Improve the privileges. Turn it into a proper set of aclitems.
         types = [
             InspectedType(i.name, i.schema, dict(col(_) for _ in i.columns), i.privs) for i in q
         ]  # type: list[InspectedType]
